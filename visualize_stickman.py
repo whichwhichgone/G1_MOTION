@@ -131,7 +131,7 @@ class StickmanVisualizer:
 
 
 if __name__ == "__main__":
-    pkl_path = "G1_1000/amass_MarcusS_AdrianM05_poses_01_Anim_2490.pkl"
+    pkl_path = "data/G1_motion_data/amass_Trial_04_poses_01_Anim_3925.pkl"
     kp_xyz = load_stickman(pkl_path)
     kp_xyz = kp_xyz.reshape(-1, 6, 3)
     viz = StickmanVisualizer(kp_xyz, title=pkl_path, fps=50.0)
