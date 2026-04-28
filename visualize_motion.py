@@ -11,11 +11,14 @@ import numpy as np
 from typing import Dict, Any, List, Optional
 from scipy.spatial.transform import Rotation as R
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
 import scipy.ndimage.filters as scipy_filters
 from matplotlib.ticker import MultipleLocator
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
+import imageio
 
 HUMAN_BODY_LINKS = [
     'pelvis', # 0
@@ -473,6 +476,24 @@ class MotionVisualizer:
 
         self._redraw(force_draw=force_draw)
 
+    def save_gif(self, output_dir: str) -> None:
+        os.makedirs(output_dir, exist_ok=True)
+        for data_id, key in enumerate(self.keys):
+            self.curr_data_id = data_id
+            self._load_current_data()
+            frames = []
+            for i in range(self.num_frames):
+                self._render(frame_idx=i, force_draw=True)
+                self.fig.canvas.draw()
+                buf = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
+                w, h = self.fig.canvas.get_width_height()
+                frames.append(buf.reshape(h, w, 3))
+            safe_name = key.replace("/", "_").replace("\\", "_")
+            out_path = os.path.join(output_dir, f"{safe_name}.gif")
+            imageio.mimsave(out_path, frames, duration=1.0 / 2 * self.play_fps, loop=0)
+            print(f"Saved: {out_path}  ({len(frames)} frames)")
+        plt.close(self.fig)
+
     def run(self):
         if self.data_len == 0:
             raise ValueError("data is empty")
@@ -657,7 +678,7 @@ def parse_args():
     )
     parser.add_argument(
         "--motion-path",
-        default="G1_motion_data/amass_142_18_poses_Anim_2209.pkl",
+        default="/liujinxin/zhaowei/G1_MOTION/data/G1_motion_data/amass_142_18_poses_Anim_2209.pkl",
         help="Path to a .pkl/.json file or a directory containing motion files. Default: G1_motion_data",
     )
     parser.add_argument(
@@ -688,6 +709,11 @@ def parse_args():
         default="resources/robots/g1/g1_skeleton.xml",
         help="MuJoCo XML path used by --viewer robot.",
     )
+    parser.add_argument(
+        "--output-dir",
+        default="output_gifs",
+        help="Directory to save GIF files. Default: output_gifs",
+    )
     return parser.parse_args()
 
 
@@ -713,7 +739,7 @@ def main():
 
     if args.viewer == "motion":
         motion_vizer = MotionVisualizer(data, args.bad_dir, fps=args.fps)
-        motion_vizer.run()
+        motion_vizer.save_gif(args.output_dir)
     else:
         robot_vizer = RobotVisualizer(data, args.humanoid_xml, dt=1.0 / args.fps)
         robot_vizer.run()

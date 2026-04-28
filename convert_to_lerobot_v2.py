@@ -138,8 +138,8 @@ def convert(input_dir: str, output_dir: str, fps: int = FPS, visualize: bool = F
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input_dir", default="data/G1_motion_data")
-    parser.add_argument("--output_dir", default="data/G1_motion_data_lerobot")
+    parser.add_argument("--input_dir", default="/liujinxin/zhaowei/G1_MOTION/data/pkl_5000_train")
+    parser.add_argument("--output_dir", default="/liujinxin/zhaowei/G1_MOTION/data/pkl_5000_train_lerobot")
     parser.add_argument("--fps", type=int, default=FPS)
     args = parser.parse_args()
 

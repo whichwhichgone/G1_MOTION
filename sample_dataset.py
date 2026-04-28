@@ -20,13 +20,13 @@ class Args:
     dataset_dir: Path = Path("/liujinxin/dataset/G1_motion_datasets")
     """Directory to recursively search for .pkl files."""
 
-    num_files: int = 1000
+    num_files: int = 5000
     """Total number of .pkl files to sample."""
 
     output_dir: Path = Path("/liujinxin/zhaowei/G1_MOTION/data")
     """Output directory."""
 
-    prefix: str = "pkl_1000"
+    prefix: str = "pkl_5000"
     """Subfolder prefix. Output folders are <prefix>_train and <prefix>_val."""
 
     seed: int | None = 123

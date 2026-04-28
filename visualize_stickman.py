@@ -1,8 +1,11 @@
 import time
 import joblib
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
+import imageio
 
 # 节点索引 (来自 HUMAN_BODY_LINKS)
 # idx: 0=pelvis, 3=left_foot, 7=right_foot, 11=spine2, 15=left_wrist, 19=right_wrist
@@ -106,6 +109,20 @@ class StickmanVisualizer:
         except Exception:
             plt.pause(0)
 
+    def save_gif(self, output_path: str) -> None:
+        frames = []
+        for i in range(self.num_frames):
+            self.current_frame = i
+            self._render(force_draw=True)
+            self.fig.canvas.draw()
+            buf = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
+            w, h = self.fig.canvas.get_width_height()
+            frames.append(buf.reshape(h, w, 3))
+        plt.close(self.fig)
+        duration = 1.0 / 2 * self.play_fps
+        imageio.mimsave(output_path, frames, duration=duration, loop=0)
+        print(f"Saved: {output_path}")
+
     def run(self):
         plt.ion()
         plt.show(block=False)
@@ -131,8 +148,8 @@ class StickmanVisualizer:
 
 
 if __name__ == "__main__":
-    pkl_path = "data/G1_motion_data/amass_Trial_04_poses_01_Anim_3925.pkl"
+    pkl_path = "/liujinxin/zhaowei/G1_MOTION/data/G1_motion_data/amass_142_18_poses_Anim_2209.pkl"
     kp_xyz = load_stickman(pkl_path)
     kp_xyz = kp_xyz.reshape(-1, 6, 3)
     viz = StickmanVisualizer(kp_xyz, title=pkl_path, fps=50.0)
-    viz.run()
+    viz.save_gif("stickman.gif")
